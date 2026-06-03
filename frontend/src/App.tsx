@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-rout
 import { useAppStore } from './store/useAppStore';
 import { wsService } from './services/websocket';
 import { Copy, Check, Users } from 'lucide-react';
+import Loader from './Loader';
 
 const API_BASE = 'https://ai-battle-room-backend-project.onrender.com';
 
@@ -10,52 +11,68 @@ function Login() {
   const [username, setUsername] = useState('');
   const [roomCode, setRoomCode] = useState('');
   const [totalRounds, setTotalRounds] = useState(3);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const setUser = useAppStore(state => state.setUser);
   const setRoom = useAppStore(state => state.setRoom);
 
   const handleLoginAndCreate = async () => {
     if (!username) return;
-    const authRes = await fetch(`${API_BASE}/auth`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username })
-    });
-    const userData = await authRes.json();
-    setUser(userData);
+    setIsLoading(true);
+    try {
+      const authRes = await fetch(`${API_BASE}/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      const userData = await authRes.json();
+      setUser(userData);
 
-    const roomRes = await fetch(`${API_BASE}/rooms`, {
-      method: 'POST',
-      headers: {
-        'session-token': userData.session_token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ total_rounds: totalRounds })
-    });
-    const roomData = await roomRes.json();
-    setRoom(roomData);
-    navigate(`/room/${roomData.room_code}`);
+      const roomRes = await fetch(`${API_BASE}/rooms`, {
+        method: 'POST',
+        headers: {
+          'session-token': userData.session_token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ total_rounds: totalRounds })
+      });
+      const roomData = await roomRes.json();
+      setRoom(roomData);
+      navigate(`/room/${roomData.room_code}`);
+    } catch (e) {
+      setIsLoading(false);
+    }
   };
 
   const handleLoginAndJoin = async () => {
     if (!username || !roomCode) return;
-    const authRes = await fetch(`${API_BASE}/auth`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username })
-    });
-    const userData = await authRes.json();
-    setUser(userData);
+    setIsLoading(true);
+    try {
+      const authRes = await fetch(`${API_BASE}/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      const userData = await authRes.json();
+      setUser(userData);
 
-    await fetch(`${API_BASE}/rooms/${roomCode}/join`, {
-      method: 'POST',
-      headers: { 'session-token': userData.session_token }
-    });
-    navigate(`/room/${roomCode}`);
+      await fetch(`${API_BASE}/rooms/${roomCode}/join`, {
+        method: 'POST',
+        headers: { 'session-token': userData.session_token }
+      });
+      navigate(`/room/${roomCode}`);
+    } catch (e) {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="layout-container">
+      {isLoading && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(4px)', zIndex: 9999 }}>
+          <Loader />
+        </div>
+      )}
       <div className="login-card">
         <h1 className="app-title">AI Battle Room</h1>
 
@@ -109,6 +126,7 @@ function Room() {
   const [userPrompt, setUserPrompt] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   const [draftScores, setDraftScores] = useState<Record<number, number>>({});
+  const [isConnecting, setIsConnecting] = useState(true);
 
   useEffect(() => {
     if (!user || !code) {
@@ -131,6 +149,7 @@ function Room() {
           setParticipants(data.participants);
         }
         wsService.connect(code);
+        setTimeout(() => setIsConnecting(false), 500);
       } else {
         navigate('/');
       }
@@ -242,7 +261,11 @@ function Room() {
   const highestScore = leaderboard.length > 0 ? leaderboard[0].totalScore : 0;
   const isWinner = !isHost && leaderboard.find(p => p.id === user?.id)?.totalScore === highestScore;
 
-  if (!room) return <div>Loading...</div>;
+  if (!room || isConnecting) return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw', backgroundColor: 'transparent' }}>
+      <Loader />
+    </div>
+  );
 
   return (
     <div className="game-wrapper">
@@ -392,7 +415,7 @@ function Room() {
                   return (
                     <div key={sub.id} id={`submission-${sub.id}`} className="submission-card">
                       <header className="sub-header">
-                        <span className="participant-id">Participant: {sub.participant_id}</span>
+                        <span className="participant-id">Participant: {participants.find(p => p.id === sub.participant_id)?.username || sub.participant_id}</span>
                         <span className={`status-badge status-${sub.job_status}`}>{sub.job_status}</span>
                       </header>
 
@@ -476,7 +499,7 @@ function Room() {
                   const score = scores.find(s => s.submission_id === sub.id);
                   return (
                     <div key={sub.id} className="minimized-submission">
-                      <strong>{isHost ? `Participant: ${sub.participant_id}` : 'Your Submission'}</strong>
+                      <strong>{isHost ? `Participant: ${participants.find(p => p.id === sub.participant_id)?.username || sub.participant_id}` : 'Your Submission'}</strong>
                       <p>{sub.user_prompt}</p>
                       {sub.ai_output && (
                         <div className="minimized-output">
