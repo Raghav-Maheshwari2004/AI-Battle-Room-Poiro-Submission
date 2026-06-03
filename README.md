@@ -122,3 +122,9 @@ Currently, every point change on the slider triggers an HTTP request and subsequ
 *   **Robust Task Queue**: Move from FastAPI `BackgroundTasks` to Celery or RQ for better job persistence, retries, and rate-limiting against the AI provider.
 *   **Enhanced UX**: Add micro-animations for score changes, a countdown timer for prompt submissions, and spectator mode with live emoji reactions.
 *   **Automated Testing**: Write `pytest` suites for the critical backend role-enforcement logic and job state transitions.
+## 💡 Real-World Applications (Use Cases)
+While originally designed for a creative battle format, this core architecture was built with enterprise utility in mind. The real-time prompt submission and scoring loop can be seamlessly adapted for:
+
+*   **Rapid Ad Campaign Ideation:** Creative directors (hosts) can lead live brainstorming sessions with marketing teams (participants). The team can rapidly prototype AI-generated ad copy or campaign concepts in real-time, with the director instantly scoring on-brand ideas and eliminating off-topic ones.
+*   **Technical Interview Processes:** Companies can use this platform to interactively test a candidate's prompt engineering skills, AI tool fluency, and output accuracy under timed constraints in a collaborative setting.
+*   **Interactive AI Literacy Workshops:** Educators or corporate trainers can use the room to teach prompt engineering. The host sets a strict constraint-based challenge, and participants compete to write the most efficient, hallucination-free prompt, learning interactively through the live-scored outputs.
