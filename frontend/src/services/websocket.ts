@@ -103,6 +103,20 @@ class WebSocketService {
       case 'ROOM_COMPLETED':
         if (store.room) {
           store.setRoom({ ...store.room, status: 'completed' });
+          const API_BASE = 'https://ai-battle-room-backend-project.onrender.com';
+          if (store.user && store.room.room_code) {
+             fetch(`${API_BASE}/rooms/${store.room.room_code}`, {
+               headers: { 'session-token': store.user.session_token }
+             }).then(res => res.ok ? res.json() : null).then(data => {
+               if (data) {
+                 store.setSubmissions(data.submissions || []);
+                 store.setScores(data.scores || []);
+                 if (data.participants) {
+                   store.setParticipants(data.participants);
+                 }
+               }
+             }).catch(console.error);
+          }
         }
         break;
       default:

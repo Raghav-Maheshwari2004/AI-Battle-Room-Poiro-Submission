@@ -259,7 +259,7 @@ function Room() {
   }, [currentRound, submissions, user]);
 
   const highestScore = leaderboard.length > 0 ? leaderboard[0].totalScore : 0;
-  const isWinner = !isHost && leaderboard.find(p => p.id === user?.id)?.totalScore === highestScore;
+  const isWinner = !isHost && highestScore > 0 && leaderboard.find(p => p.id === user?.id)?.totalScore === highestScore;
 
   if (!room || isConnecting) return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw', backgroundColor: 'transparent' }}>
