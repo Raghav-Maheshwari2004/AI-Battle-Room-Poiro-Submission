@@ -51,7 +51,14 @@ A real-time, stateful platform where users compete in an AI-powered creative cha
 ## 🏗 Architecture Overview
 The application follows a client-server architecture. The frontend is a React Single Page Application (SPA) that communicates with the backend via REST APIs for synchronous actions (auth, room creation, submissions) and WebSockets for real-time state updates. The backend uses FastAPI for high performance and async capabilities, with SQLModel acting as the ORM to a SQLite database. State management on the frontend is handled cleanly by Zustand, which listens to WebSocket events and patches the UI state instantaneously.
 
-## 🗄 Database Schema (Entity Model)
+## 🗄 Database Choice & Entity Model
+
+**Database Choice: SQLite via SQLModel**
+I opted for SQLite for this vertical slice because it requires zero external infrastructure, making local setup and testing frictionless. It perfectly supports the relational nature of our data (Users, Rooms, Submissions, Scores) without the overhead of a dedicated PostgreSQL instance. 
+
+*Tradeoff*: SQLite struggles with high-concurrency write locks. If this platform were to scale to thousands of simultaneous battle rooms, the database would need to be migrated to PostgreSQL, which SQLModel handles gracefully by simply changing the connection string.
+
+### Entity Model
 *   **User**: Represents a persistent identity (`id`, `username`, `session_token`).
 *   **Room**: The battle arena (`id`, `room_code`, `host_id`, `status`, `total_rounds`).
 *   **RoomParticipant**: Junction table linking Users to Rooms (`room_id`, `user_id`).
