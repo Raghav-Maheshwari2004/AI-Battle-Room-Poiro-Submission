@@ -353,6 +353,6 @@ const StyledWrapper = styled.div`
       transform: scale(1, 1);
     }
   }
-\`;
+`;
 
 export default Loader;
