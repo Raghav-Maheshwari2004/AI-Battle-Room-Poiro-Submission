@@ -5,6 +5,7 @@ A real-time, stateful platform where users compete in an AI-powered creative cha
 ## 🚀 Live Demo
 - **Frontend (Vercel)**: https://poiro-battle-room-six.vercel.app/
 - **Backend (Render)**: https://ai-battle-room-backend-project.onrender.com/ (API Base)
+- **Demo Video**: https://drive.google.com/file/d/1xJK0V5yemgoDcxWibNo8_Ob_fgVLdf5H/view?usp=sharing
 
 ## 🛠 Tech Stack
 *   **Frontend**: React (Vite), TypeScript, Tailwind CSS (v4), Zustand
