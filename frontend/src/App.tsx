@@ -4,7 +4,7 @@ import { useAppStore } from './store/useAppStore';
 import { wsService } from './services/websocket';
 import { Copy, Check, Users } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'https://ai-battle-room-backend-project.onrender.com';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -26,7 +26,7 @@ function Login() {
 
     const roomRes = await fetch(`${API_BASE}/rooms`, {
       method: 'POST',
-      headers: { 
+      headers: {
         'session-token': userData.session_token,
         'Content-Type': 'application/json'
       },
@@ -58,13 +58,13 @@ function Login() {
     <div className="layout-container">
       <div className="login-card">
         <h1 className="app-title">AI Battle Room</h1>
-        
+
         <div className="action-section">
           <h3>Create a new Room</h3>
           <div className="input-group">
-            <input 
-              type="text" 
-              placeholder="Enter Username" 
+            <input
+              type="text"
+              placeholder="Enter Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -85,9 +85,9 @@ function Login() {
         <div className="action-section">
           <h3>Join an Existing Room</h3>
           <div className="input-group">
-            <input 
-              type="text" 
-              placeholder="Room Code" 
+            <input
+              type="text"
+              placeholder="Room Code"
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value)}
             />
@@ -146,9 +146,9 @@ function Room() {
     if (!themePrompt) return;
     await fetch(`${API_BASE}/rooms/${code}/start`, {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        'session-token': user!.session_token 
+        'session-token': user!.session_token
       },
       body: JSON.stringify({ theme_prompt: themePrompt })
     });
@@ -158,8 +158,8 @@ function Room() {
   const handleCompleteRoom = async () => {
     await fetch(`${API_BASE}/rooms/${code}/complete`, {
       method: 'POST',
-      headers: { 
-        'session-token': user!.session_token 
+      headers: {
+        'session-token': user!.session_token
       }
     });
   };
@@ -176,9 +176,9 @@ function Room() {
     if (!userPrompt) return;
     await fetch(`${API_BASE}/rooms/${code}/submit`, {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        'session-token': user!.session_token 
+        'session-token': user!.session_token
       },
       body: JSON.stringify({ user_prompt: userPrompt })
     });
@@ -188,11 +188,11 @@ function Room() {
   const handleScore = async (submissionId: number, points: number, eliminated: boolean) => {
     await fetch(`${API_BASE}/rooms/${code}/score`, {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        'session-token': user!.session_token 
+        'session-token': user!.session_token
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         submission_id: submissionId,
         points_assigned: points,
         is_eliminated: eliminated
@@ -207,7 +207,7 @@ function Room() {
   const handleMarkAndNext = async (subId: number, index: number) => {
     const points = draftScores[subId] !== undefined ? draftScores[subId] : (scores.find(s => s.submission_id === subId)?.points_assigned || 5);
     await handleScore(subId, points, false);
-    
+
     const nextSub = submissions[index + 1];
     if (nextSub) {
       document.getElementById(`submission-${nextSub.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -234,7 +234,7 @@ function Room() {
 
   const liveSubmissions = submissions.filter(s => s.round_id === currentRound?.id);
   const pastRounds = allRounds.filter(r => currentRound && r.id !== currentRound.id);
-  
+
   const hasSubmittedCurrentRound = useMemo(() => {
     return currentRound && submissions.some(s => s.round_id === currentRound.id && s.participant_id === user?.id);
   }, [currentRound, submissions, user]);
@@ -247,7 +247,7 @@ function Room() {
   return (
     <div className="game-wrapper">
       <div className="game-layout">
-        
+
         {/* LEFT PANEL */}
         <div className="left-panel">
           <div className="room-info dashboard-card" style={{ marginBottom: 0 }}>
@@ -319,9 +319,9 @@ function Room() {
                       </button>
                     ) : (
                       <>
-                        <input 
-                          type="text" 
-                          placeholder="Enter challenge theme" 
+                        <input
+                          type="text"
+                          placeholder="Enter challenge theme"
                           value={themePrompt}
                           onChange={(e) => setThemePrompt(e.target.value)}
                         />
@@ -366,9 +366,9 @@ function Room() {
                 <div className="submission-section dashboard-card">
                   <h3>Your Submission</h3>
                   <div className="input-group-vertical">
-                    <textarea 
+                    <textarea
                       rows={4}
-                      placeholder="Type your prompt here..." 
+                      placeholder="Type your prompt here..."
                       value={userPrompt}
                       onChange={(e) => setUserPrompt(e.target.value)}
                     />
@@ -388,14 +388,14 @@ function Room() {
                 {liveSubmissions.map((sub, index) => {
                   const score = scores.find(s => s.submission_id === sub.id);
                   const currentDraft = draftScores[sub.id] !== undefined ? draftScores[sub.id] : (score?.points_assigned || 5);
-                  
+
                   return (
                     <div key={sub.id} id={`submission-${sub.id}`} className="submission-card">
                       <header className="sub-header">
                         <span className="participant-id">Participant: {sub.participant_id}</span>
                         <span className={`status-badge status-${sub.job_status}`}>{sub.job_status}</span>
                       </header>
-                      
+
                       <div className="sub-content">
                         <div className="prompt-section">
                           <strong>Prompt</strong>
@@ -421,7 +421,7 @@ function Room() {
                           <div className="score-controls">
                             <div className="score-input-group" style={{ flex: 1 }}>
                               <label style={{ whiteSpace: 'nowrap' }}>Score (0-10): </label>
-                              <input 
+                              <input
                                 type="range" min="0" max="10" step="1"
                                 value={currentDraft}
                                 onChange={(e) => handleDraftScoreChange(sub.id, parseInt(e.target.value))}
@@ -439,7 +439,7 @@ function Room() {
                             </div>
                           </div>
                         )}
-                        
+
                         {!isHost && score && sub.participant_id === user?.id && (
                           <div className="score-display">
                             {score.is_eliminated ? (
@@ -462,11 +462,11 @@ function Room() {
         <aside className="right-panel">
           <h3>Past Rounds</h3>
           {pastRounds.length === 0 && <p style={{ color: '#666', fontSize: '0.9rem' }}>No past rounds yet.</p>}
-          
+
           {pastRounds.map(r => {
             const roundSubs = submissions.filter(s => s.round_id === r.id);
             const displaySubs = isHost ? roundSubs : roundSubs.filter(s => s.participant_id === user?.id);
-            
+
             if (displaySubs.length === 0) return null;
 
             return (

@@ -10,7 +10,7 @@ class WebSocketService {
     if (this.socket && this.roomCode === roomCode) return;
     
     this.roomCode = roomCode;
-    const wsUrl = `ws://localhost:8000/ws/rooms/${roomCode}`;
+    const wsUrl = `wss://ai-battle-room-backend.onrender.com/ws/rooms/${roomCode}`;
     this.socket = new WebSocket(wsUrl);
 
     this.socket.onopen = () => {
